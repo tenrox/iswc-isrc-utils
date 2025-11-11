@@ -22,16 +22,28 @@
 
     .app {
       width: 100%;
-      max-width: 560px;
+      max-width: 900px;
       padding: 24px;
     }
 
     .card {
       background: rgba(15, 23, 42, 0.96);
       border-radius: 18px;
-      padding: 24px 22px 22px;
+      padding: 20px 20px 18px;
       box-shadow: 0 24px 60px rgba(15, 23, 42, 0.8);
       border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .main-panel,
+    .history-panel {
+      min-width: 0;
     }
 
     h1 {
@@ -167,6 +179,151 @@
       box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
     }
 
+    /* History panel */
+
+    .history-panel {
+      border-left: 1px solid rgba(148, 163, 184, 0.35);
+      padding-left: 14px;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+
+    .history-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .history-subtitle {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .history-body {
+      font-size: 12px;
+    }
+
+    #historyEmpty {
+      font-size: 11px;
+      color: #6b7280;
+      font-style: italic;
+      margin-top: 4px;
+    }
+
+    #historyList {
+      list-style: decimal;
+      margin: 4px 0 8px 18px;
+      padding: 0;
+      max-height: 210px;
+      overflow-y: auto;
+    }
+
+    #historyList li {
+      margin-bottom: 3px;
+    }
+
+    .history-item {
+      all: unset;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+    }
+
+    .history-item-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      padding: 3px 6px;
+      border-radius: 8px;
+    }
+
+    .history-item:hover .history-item-inner {
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .history-line-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .history-kind {
+      font-weight: 600;
+    }
+
+    .history-time {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .history-line-bottom {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      color: #e5e7eb;
+      opacity: 0.95;
+      word-break: break-all;
+    }
+
+    #historyDetails {
+      border-top: 1px solid rgba(148, 163, 184, 0.4);
+      padding-top: 6px;
+      margin-top: 4px;
+      font-size: 12px;
+    }
+
+    .history-detail-heading {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .history-detail-section {
+      margin-bottom: 6px;
+    }
+
+    .history-detail-label {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 2px;
+    }
+
+    .history-detail-code {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+        Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      word-break: break-all;
+      display: inline-block;
+    }
+
+    @media (max-width: 720px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .history-panel {
+        border-left: none;
+        border-top: 1px solid rgba(148, 163, 184, 0.35);
+        padding-left: 0;
+        padding-top: 10px;
+        margin-top: 10px;
+      }
+    }
+
     @media (max-width: 480px) {
       .card {
         padding: 18px 14px 16px;
@@ -185,57 +342,78 @@
 <body>
   <div class="app">
     <div class="card">
-      <h1>ISWC / ISRC formatter</h1>
-      <div class="subtitle">
-        Paste any ISWC or ISRC. The tool will normalize and reformat it.
-      </div>
-
-      <div class="badge">
-        <span class="dot"></span>
-        <span>ISWC: T + 10 digits · ISRC: 2 letters + 10 chars</span>
-      </div>
-
-      <div class="hint">
-        Example: <strong>T9121280997</strong>,
-        <strong>T-923.502.140-6</strong>,
-        <strong>SE-69Z-25-02263</strong>
-      </div>
-
-      <div class="input-row">
-        <input
-          id="codeInput"
-          type="text"
-          placeholder="Paste ISWC or ISRC here..."
-        />
-        <button id="convertBtn" type="button">Convert</button>
-      </div>
-
-      <div id="error" class="error" style="display:none;"></div>
-
-      <div id="results" class="results" style="display:none;">
-        <div id="iswcSection" class="result-section" style="display:none;">
-          <div class="result-label">ISWC</div>
-
-          <div class="result-row">
-            <span class="value" id="iswcCompact"></span>
-            <button class="copy-btn" data-target="iswcCompact">Copy</button>
+      <div class="layout">
+        <!-- Main converter panel -->
+        <div class="main-panel">
+          <h1>ISWC / ISRC formatter</h1>
+          <div class="subtitle">
+            Paste any ISWC or ISRC. The tool will normalize and reformat it.
           </div>
-          <div class="result-row">
-            <span class="value" id="iswcFormatted"></span>
-            <button class="copy-btn" data-target="iswcFormatted">Copy</button>
+
+          <div class="badge">
+            <span class="dot"></span>
+            <span>ISWC: T + 10 digits · ISRC: 2 letters + 10 chars</span>
+          </div>
+
+          <div class="hint">
+            Example: <strong>T9121280997</strong>,
+            <strong>T-923.502.140-6</strong>,
+            <strong>SE-69Z-25-02263</strong>
+          </div>
+
+          <div class="input-row">
+            <input
+              id="codeInput"
+              type="text"
+              autocomplete="off"
+              placeholder="Paste ISWC or ISRC here..."
+            />
+            <button id="convertBtn" type="button">Convert</button>
+          </div>
+
+          <div id="error" class="error" style="display:none;"></div>
+
+          <div id="results" class="results" style="display:none;">
+            <div id="iswcSection" class="result-section" style="display:none;">
+              <div class="result-label">ISWC</div>
+
+              <div class="result-row">
+                <span class="value" id="iswcCompact"></span>
+                <button class="copy-btn" data-target="iswcCompact">Copy</button>
+              </div>
+              <div class="result-row">
+                <span class="value" id="iswcFormatted"></span>
+                <button class="copy-btn" data-target="iswcFormatted">Copy</button>
+              </div>
+            </div>
+
+            <div id="isrcSection" class="result-section" style="display:none;">
+              <div class="result-label">ISRC</div>
+
+              <div class="result-row">
+                <span class="value" id="isrcCompact"></span>
+                <button class="copy-btn" data-target="isrcCompact">Copy</button>
+              </div>
+              <div class="result-row">
+                <span class="value" id="isrcFormatted"></span>
+                <button class="copy-btn" data-target="isrcFormatted">Copy</button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div id="isrcSection" class="result-section" style="display:none;">
-          <div class="result-label">ISRC</div>
-
-          <div class="result-row">
-            <span class="value" id="isrcCompact"></span>
-            <button class="copy-btn" data-target="isrcCompact">Copy</button>
+        <!-- History panel -->
+        <div class="history-panel">
+          <div class="history-header">
+            <div class="history-title">History</div>
+            <div class="history-subtitle">Local, last few searches</div>
           </div>
-          <div class="result-row">
-            <span class="value" id="isrcFormatted"></span>
-            <button class="copy-btn" data-target="isrcFormatted">Copy</button>
+
+          <div class="history-body">
+            <div id="historyEmpty">No searches yet. Conversions will show up here.</div>
+            <ol id="historyList"></ol>
+
+            <div id="historyDetails" style="display:none;"></div>
           </div>
         </div>
       </div>
@@ -255,6 +433,13 @@
     const iswcFormattedEl = document.getElementById("iswcFormatted");
     const isrcCompactEl = document.getElementById("isrcCompact");
     const isrcFormattedEl = document.getElementById("isrcFormatted");
+
+    const historyListEl = document.getElementById("historyList");
+    const historyEmptyEl = document.getElementById("historyEmpty");
+    const historyDetailsEl = document.getElementById("historyDetails");
+
+    let historyItems = [];
+    let nextHistoryId = 1;
 
     function clearResults() {
       resultsEl.style.display = "none";
@@ -306,6 +491,136 @@
       return { compact, formatted };
     }
 
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function addToHistory(raw, iswc, isrc) {
+      const now = new Date();
+      const item = {
+        id: String(nextHistoryId++),
+        raw,
+        iswc,
+        isrc,
+        timeLabel: now.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }),
+        dateLabel: now.toLocaleDateString(),
+      };
+
+      historyItems.unshift(item);
+      if (historyItems.length > 50) {
+        historyItems.pop();
+      }
+
+      renderHistory();
+      showHistoryDetails(item);
+    }
+
+    function renderHistory() {
+      if (!historyItems.length) {
+        historyEmptyEl.style.display = "block";
+        historyListEl.innerHTML = "";
+        historyDetailsEl.style.display = "none";
+        historyDetailsEl.innerHTML = "";
+        return;
+      }
+
+      historyEmptyEl.style.display = "none";
+      historyListEl.innerHTML = "";
+
+      historyItems.forEach((item) => {
+        const li = document.createElement("li");
+
+        const btn = document.createElement("button");
+        btn.className = "history-item";
+        btn.setAttribute("data-id", item.id);
+
+        const inner = document.createElement("div");
+        inner.className = "history-item-inner";
+
+        const top = document.createElement("div");
+        top.className = "history-line-top";
+
+        const kind = document.createElement("span");
+        kind.className = "history-kind";
+        kind.textContent = item.iswc ? "ISWC" : "ISRC";
+
+        const time = document.createElement("span");
+        time.className = "history-time";
+        time.textContent = item.timeLabel;
+
+        top.appendChild(kind);
+        top.appendChild(time);
+
+        const bottom = document.createElement("div");
+        bottom.className = "history-line-bottom";
+        bottom.innerHTML = escapeHtml(item.raw);
+
+        inner.appendChild(top);
+        inner.appendChild(bottom);
+
+        btn.appendChild(inner);
+        li.appendChild(btn);
+        historyListEl.appendChild(li);
+      });
+    }
+
+    function showHistoryDetails(item) {
+      if (!item) {
+        historyDetailsEl.style.display = "none";
+        historyDetailsEl.innerHTML = "";
+        return;
+      }
+
+      let html = "";
+      html += `<div class="history-detail-heading">Details (${item.dateLabel} ${item.timeLabel})</div>`;
+
+      if (item.iswc) {
+        html += `
+          <div class="history-detail-section">
+            <div class="history-detail-label">ISWC compact</div>
+            <div class="history-detail-code">${escapeHtml(
+              item.iswc.compact
+            )}</div>
+          </div>
+          <div class="history-detail-section">
+            <div class="history-detail-label">ISWC formatted</div>
+            <div class="history-detail-code">${escapeHtml(
+              item.iswc.formatted
+            )}</div>
+          </div>
+        `;
+      }
+
+      if (item.isrc) {
+        html += `
+          <div class="history-detail-section">
+            <div class="history-detail-label">ISRC compact</div>
+            <div class="history-detail-code">${escapeHtml(
+              item.isrc.compact
+            )}</div>
+          </div>
+          <div class="history-detail-section">
+            <div class="history-detail-label">ISRC formatted</div>
+            <div class="history-detail-code">${escapeHtml(
+              item.isrc.formatted
+            )}</div>
+          </div>
+        `;
+      }
+
+      historyDetailsEl.innerHTML = html;
+      historyDetailsEl.style.display = "block";
+    }
+
     function convert() {
       clearResults();
 
@@ -316,7 +631,8 @@
         return;
       }
 
-      const firstChar = raw.trim().charAt(0).toUpperCase();
+      const trimmed = raw.trim();
+      const firstChar = trimmed.charAt(0).toUpperCase();
 
       let iswc = null;
       let isrc = null;
@@ -326,13 +642,13 @@
       // - Else if starts with two letters => ISRC
       // - Else try both and see if one fits
       if (firstChar === "T") {
-        iswc = formatISWC(raw);
-      } else if (/^[A-Za-z]{2}/.test(raw.trim())) {
-        isrc = formatISRC(raw);
+        iswc = formatISWC(trimmed);
+      } else if (/^[A-Za-z]{2}/.test(trimmed)) {
+        isrc = formatISRC(trimmed);
       } else {
-        iswc = formatISWC(raw);
+        iswc = formatISWC(trimmed);
         if (!iswc) {
-          isrc = formatISRC(raw);
+          isrc = formatISRC(trimmed);
         }
       }
 
@@ -356,6 +672,9 @@
         isrcCompactEl.textContent = isrc.compact;
         isrcFormattedEl.textContent = isrc.formatted;
       }
+
+      // add successful conversion to history
+      addToHistory(raw, iswc, isrc);
     }
 
     convertBtn.addEventListener("click", convert);
@@ -385,6 +704,16 @@
         }, 900);
       } catch (err) {
         console.error("Clipboard error", err);
+      }
+    });
+
+    historyListEl.addEventListener("click", (e) => {
+      const btn = e.target.closest(".history-item");
+      if (!btn) return;
+      const id = btn.getAttribute("data-id");
+      const item = historyItems.find((h) => h.id === id);
+      if (item) {
+        showHistoryDetails(item);
       }
     });
   </script>
