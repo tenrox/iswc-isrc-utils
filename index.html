@@ -22,7 +22,7 @@
 
     .app {
       width: 100%;
-      max-width: 900px;
+      max-width: 980px;
       padding: 24px;
     }
 
@@ -52,10 +52,44 @@
       letter-spacing: 0.02em;
     }
 
+    .subtitle-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
     .subtitle {
       font-size: 13px;
       color: #9ca3af;
-      margin-bottom: 18px;
+      margin-top: 2px;
+    }
+
+    /* Toggles / settings */
+
+    .settings {
+      font-size: 11px;
+      color: #9ca3af;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-end;
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toggle input {
+      accent-color: #22c55e;
+      cursor: pointer;
+    }
+
+    .toggle label {
+      cursor: pointer;
     }
 
     .input-row {
@@ -104,6 +138,23 @@
       font-size: 11px;
       color: #9ca3af;
       margin-bottom: 4px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      margin-bottom: 8px;
+      color: #9ca3af;
+    }
+
+    .badge span.dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
     }
 
     .results {
@@ -160,23 +211,6 @@
       font-size: 12px;
       color: #f97373;
       margin-top: 6px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      margin-bottom: 8px;
-      color: #9ca3af;
-    }
-
-    .badge span.dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
     }
 
     /* History panel */
@@ -310,7 +344,61 @@
       display: inline-block;
     }
 
-    @media (max-width: 720px) {
+    /* Metadata / bells and whistles */
+
+    .meta-section {
+      margin-top: 8px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
+      gap: 6px 14px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+
+    .meta-label {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .meta-value {
+      font-size: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      word-break: break-all;
+    }
+
+    .meta-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .meta-btn {
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      cursor: pointer;
+    }
+
+    .meta-btn[disabled] {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .meta-status {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 840px) {
       .layout {
         grid-template-columns: 1fr;
       }
@@ -321,6 +409,15 @@
         padding-left: 0;
         padding-top: 10px;
         margin-top: 10px;
+      }
+
+      .subtitle-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .settings {
+        align-items: flex-start;
       }
     }
 
@@ -346,8 +443,21 @@
         <!-- Main converter panel -->
         <div class="main-panel">
           <h1>ISWC / ISRC formatter</h1>
-          <div class="subtitle">
-            Paste any ISWC or ISRC. The tool will normalize and reformat it.
+
+          <div class="subtitle-row">
+            <div class="subtitle">
+              Paste any ISWC or ISRC. The tool will normalize and reformat it.
+            </div>
+            <div class="settings">
+              <div class="toggle">
+                <input type="checkbox" id="simpleToggle" />
+                <label for="simpleToggle">Simple mode (no history, no extras)</label>
+              </div>
+              <div class="toggle">
+                <input type="checkbox" id="bellsToggle" checked />
+                <label for="bellsToggle">Bells and whistles (metadata & links)</label>
+              </div>
+            </div>
           </div>
 
           <div class="badge">
@@ -399,11 +509,43 @@
                 <button class="copy-btn" data-target="isrcFormatted">Copy</button>
               </div>
             </div>
+
+            <!-- Metadata / bells and whistles -->
+            <div id="metaSection" class="result-section meta-section" style="display:none;">
+              <div class="result-label">ISRC details</div>
+              <div class="meta-grid">
+                <div>
+                  <div class="meta-label">Country</div>
+                  <div class="meta-value" id="metaCountry"></div>
+                </div>
+                <div>
+                  <div class="meta-label">Registrant code</div>
+                  <div class="meta-value" id="metaRegistrant"></div>
+                </div>
+                <div>
+                  <div class="meta-label">Track</div>
+                  <div class="meta-value" id="metaTrack"></div>
+                </div>
+                <div>
+                  <div class="meta-label">Artist</div>
+                  <div class="meta-value" id="metaArtist"></div>
+                </div>
+              </div>
+              <div class="meta-actions">
+                <button id="mbLinkBtn" class="meta-btn" type="button" disabled>
+                  Open in MusicBrainz
+                </button>
+                <button id="isrcFinderBtn" class="meta-btn" type="button" disabled>
+                  Open in ISRC Finder (copies ISRC)
+                </button>
+              </div>
+              <div id="metaStatus" class="meta-status"></div>
+            </div>
           </div>
         </div>
 
         <!-- History panel -->
-        <div class="history-panel">
+        <div class="history-panel" id="historyPanel">
           <div class="history-header">
             <div class="history-title">History</div>
             <div class="history-subtitle">Local, last few searches</div>
@@ -434,12 +576,150 @@
     const isrcCompactEl = document.getElementById("isrcCompact");
     const isrcFormattedEl = document.getElementById("isrcFormatted");
 
+    const historyPanel = document.getElementById("historyPanel");
     const historyListEl = document.getElementById("historyList");
     const historyEmptyEl = document.getElementById("historyEmpty");
     const historyDetailsEl = document.getElementById("historyDetails");
 
+    const metaSection = document.getElementById("metaSection");
+    const metaCountryEl = document.getElementById("metaCountry");
+    const metaRegistrantEl = document.getElementById("metaRegistrant");
+    const metaTrackEl = document.getElementById("metaTrack");
+    const metaArtistEl = document.getElementById("metaArtist");
+    const metaStatusEl = document.getElementById("metaStatus");
+    const mbLinkBtn = document.getElementById("mbLinkBtn");
+    const isrcFinderBtn = document.getElementById("isrcFinderBtn");
+
+    const simpleToggle = document.getElementById("simpleToggle");
+    const bellsToggle = document.getElementById("bellsToggle");
+
     let historyItems = [];
     let nextHistoryId = 1;
+
+    let lastIsrcCompact = null;
+    let lastMusicBrainzId = null;
+
+    let simpleMode = false;
+    let bellsMode = true;
+
+    // Basic ISO 3166-1 alpha-2 country table (can be extended if you like)
+    const COUNTRY_NAMES = {
+      AF: "Afghanistan",
+      AL: "Albania",
+      DZ: "Algeria",
+      AS: "American Samoa",
+      AD: "Andorra",
+      AO: "Angola",
+      AR: "Argentina",
+      AM: "Armenia",
+      AU: "Australia",
+      AT: "Austria",
+      AZ: "Azerbaijan",
+      BS: "Bahamas",
+      BH: "Bahrain",
+      BD: "Bangladesh",
+      BB: "Barbados",
+      BY: "Belarus",
+      BE: "Belgium",
+      BZ: "Belize",
+      BJ: "Benin",
+      BM: "Bermuda",
+      BO: "Bolivia",
+      BA: "Bosnia and Herzegovina",
+      BW: "Botswana",
+      BR: "Brazil",
+      BG: "Bulgaria",
+      CA: "Canada",
+      CL: "Chile",
+      CN: "China",
+      CO: "Colombia",
+      CR: "Costa Rica",
+      HR: "Croatia",
+      CY: "Cyprus",
+      CZ: "Czech Republic",
+      DK: "Denmark",
+      DO: "Dominican Republic",
+      EC: "Ecuador",
+      EG: "Egypt",
+      SV: "El Salvador",
+      EE: "Estonia",
+      FI: "Finland",
+      FR: "France",
+      GE: "Georgia",
+      DE: "Germany",
+      GH: "Ghana",
+      GR: "Greece",
+      GT: "Guatemala",
+      HK: "Hong Kong",
+      HN: "Honduras",
+      HU: "Hungary",
+      IS: "Iceland",
+      IN: "India",
+      ID: "Indonesia",
+      IE: "Ireland",
+      IL: "Israel",
+      IT: "Italy",
+      JM: "Jamaica",
+      JP: "Japan",
+      JO: "Jordan",
+      KE: "Kenya",
+      KR: "Korea, Republic of",
+      KW: "Kuwait",
+      LV: "Latvia",
+      LB: "Lebanon",
+      LT: "Lithuania",
+      LU: "Luxembourg",
+      MO: "Macao",
+      MK: "North Macedonia",
+      MY: "Malaysia",
+      MT: "Malta",
+      MX: "Mexico",
+      MD: "Moldova",
+      MC: "Monaco",
+      MN: "Mongolia",
+      MA: "Morocco",
+      MZ: "Mozambique",
+      NA: "Namibia",
+      NP: "Nepal",
+      NL: "Netherlands",
+      NZ: "New Zealand",
+      NI: "Nicaragua",
+      NG: "Nigeria",
+      NO: "Norway",
+      OM: "Oman",
+      PK: "Pakistan",
+      PA: "Panama",
+      PY: "Paraguay",
+      PE: "Peru",
+      PH: "Philippines",
+      PL: "Poland",
+      PT: "Portugal",
+      PR: "Puerto Rico",
+      QA: "Qatar",
+      RO: "Romania",
+      RU: "Russian Federation",
+      SA: "Saudi Arabia",
+      RS: "Serbia",
+      SG: "Singapore",
+      SK: "Slovakia",
+      SI: "Slovenia",
+      ZA: "South Africa",
+      ES: "Spain",
+      LK: "Sri Lanka",
+      SE: "Sweden",
+      CH: "Switzerland",
+      TW: "Taiwan",
+      TH: "Thailand",
+      TR: "Turkey",
+      UA: "Ukraine",
+      AE: "United Arab Emirates",
+      GB: "United Kingdom",
+      US: "United States",
+      UY: "Uruguay",
+      VE: "Venezuela",
+      VN: "Viet Nam"
+      // add more if needed
+    };
 
     function clearResults() {
       resultsEl.style.display = "none";
@@ -450,17 +730,29 @@
       iswcFormattedEl.textContent = "";
       isrcCompactEl.textContent = "";
       isrcFormattedEl.textContent = "";
+      clearMeta();
+    }
+
+    function clearMeta() {
+      metaSection.style.display = "none";
+      metaCountryEl.textContent = "";
+      metaRegistrantEl.textContent = "";
+      metaTrackEl.textContent = "";
+      metaArtistEl.textContent = "";
+      metaStatusEl.textContent = "";
+      mbLinkBtn.disabled = true;
+      mbLinkBtn.dataset.url = "";
+      isrcFinderBtn.disabled = true;
     }
 
     function formatISWC(raw) {
-      // Remove everything except letters and digits, uppercase
       const cleaned = raw.toUpperCase().replace(/[^A-Z0-9]/g, "");
       if (!/^T\d{10}$/.test(cleaned)) {
-        return null; // basic syntax check only
+        return null;
       }
 
       const prefix = "T";
-      const digits = cleaned.slice(1); // 10 digits
+      const digits = cleaned.slice(1);
       const work = digits.slice(0, 9);
       const checkDigit = digits.slice(9);
 
@@ -468,7 +760,7 @@
       const part2 = work.slice(3, 6);
       const part3 = work.slice(6, 9);
 
-      const compact = prefix + digits; // T##########
+      const compact = prefix + digits;
       const formatted = `${prefix}-${part1}.${part2}.${part3}-${checkDigit}`;
 
       return { compact, formatted };
@@ -476,7 +768,6 @@
 
     function formatISRC(raw) {
       const cleaned = raw.toUpperCase().replace(/[^A-Z0-9]/g, "");
-      // 12 chars: CCXXXYYNNNNN
       if (!/^[A-Z]{2}[A-Z0-9]{3}\d{2}\d{5}$/.test(cleaned)) {
         return null;
       }
@@ -484,11 +775,11 @@
       const cc = cleaned.slice(0, 2);
       const registrant = cleaned.slice(2, 5);
       const year = cleaned.slice(5, 7);
-      const designation = cleaned.slice(7); // 5 digits
+      const designation = cleaned.slice(7);
 
       const compact = cleaned;
       const formatted = `${cc}-${registrant}-${year}-${designation}`;
-      return { compact, formatted };
+      return { compact, formatted, cc, registrant };
     }
 
     function escapeHtml(str) {
@@ -621,6 +912,90 @@
       historyDetailsEl.style.display = "block";
     }
 
+    // MusicBrainz lookup
+
+    async function fetchTrackFromIsrc(isrcCompact) {
+      metaStatusEl.textContent = "Looking up recording on MusicBrainz...";
+      mbLinkBtn.disabled = true;
+      mbLinkBtn.dataset.url = "";
+      metaTrackEl.textContent = "";
+      metaArtistEl.textContent = "";
+
+      try {
+        const url =
+          "https://musicbrainz.org/ws/2/recording?query=" +
+          encodeURIComponent("isrc:" + isrcCompact) +
+          "&fmt=json&limit=1&inc=artists+releases";
+
+        const res = await fetch(url, {
+          headers: {
+            "User-Agent":
+              "iswc-isrc-utils/1.0 (https://tenrox.github.io/iswc-isrc-utils/)"
+          }
+        });
+
+        if (!res.ok) {
+          metaStatusEl.textContent = "MusicBrainz lookup failed.";
+          return;
+        }
+
+        const data = await res.json();
+        const rec = data.recordings && data.recordings[0];
+        if (!rec) {
+          metaStatusEl.textContent = "No matching recording found in MusicBrainz.";
+          return;
+        }
+
+        // Only update if this is still the current ISRC
+        if (isrcCompact !== lastIsrcCompact) {
+          return;
+        }
+
+        const title = rec.title || "";
+        const artist =
+          (rec["artist-credit"] &&
+            rec["artist-credit"][0] &&
+            rec["artist-credit"][0].name) ||
+          "";
+
+        metaTrackEl.textContent = title || "(unknown title)";
+        metaArtistEl.textContent = artist || "(unknown artist)";
+        metaStatusEl.textContent = "Metadata from MusicBrainz.";
+
+        lastMusicBrainzId = rec.id;
+        const mbUrl = "https://musicbrainz.org/recording/" + rec.id;
+        mbLinkBtn.dataset.url = mbUrl;
+        mbLinkBtn.disabled = false;
+      } catch (err) {
+        console.error("MusicBrainz error", err);
+        metaStatusEl.textContent = "MusicBrainz lookup error.";
+      }
+    }
+
+    function updateModeUI() {
+      simpleMode = simpleToggle.checked;
+      bellsMode = bellsToggle.checked && !simpleMode;
+
+      historyPanel.style.display = simpleMode ? "none" : "";
+
+      if (simpleMode || !bellsMode) {
+        clearMeta();
+      } else if (bellsMode && lastIsrcCompact) {
+        // Redisplay structural info, and optionally re-run lookup
+        showIsrcStructure(lastIsrcCompact);
+        fetchTrackFromIsrc(lastIsrcCompact);
+      }
+    }
+
+    function showIsrcStructure(isrcCompact) {
+      const cc = isrcCompact.slice(0, 2);
+      const registrant = isrcCompact.slice(2, 5);
+      const countryName = COUNTRY_NAMES[cc] || "Unknown country";
+
+      metaCountryEl.textContent = `${countryName} (${cc})`;
+      metaRegistrantEl.textContent = `${cc}${registrant}`;
+    }
+
     function convert() {
       clearResults();
 
@@ -637,10 +1012,6 @@
       let iswc = null;
       let isrc = null;
 
-      // Heuristic:
-      // - Starts with T => treat as ISWC
-      // - Else if starts with two letters => ISRC
-      // - Else try both and see if one fits
       if (firstChar === "T") {
         iswc = formatISWC(trimmed);
       } else if (/^[A-Za-z]{2}/.test(trimmed)) {
@@ -673,8 +1044,28 @@
         isrcFormattedEl.textContent = isrc.formatted;
       }
 
-      // add successful conversion to history
-      addToHistory(raw, iswc, isrc);
+      // History (disabled in simple mode)
+      if (!simpleMode) {
+        addToHistory(raw, iswc, isrc);
+      }
+
+      // Bells & whistles for ISRC only
+      lastIsrcCompact = isrc ? isrc.compact : null;
+      lastMusicBrainzId = null;
+
+      if (bellsMode && isrc) {
+        metaSection.style.display = "block";
+        showIsrcStructure(isrc.compact);
+        metaTrackEl.textContent = "";
+        metaArtistEl.textContent = "";
+        metaStatusEl.textContent = "";
+        mbLinkBtn.disabled = true;
+        mbLinkBtn.dataset.url = "";
+        isrcFinderBtn.disabled = false;
+        fetchTrackFromIsrc(isrc.compact);
+      } else {
+        clearMeta();
+      }
     }
 
     convertBtn.addEventListener("click", convert);
@@ -716,6 +1107,32 @@
         showHistoryDetails(item);
       }
     });
+
+    simpleToggle.addEventListener("change", updateModeUI);
+    bellsToggle.addEventListener("change", updateModeUI);
+
+    mbLinkBtn.addEventListener("click", () => {
+      const url = mbLinkBtn.dataset.url;
+      if (!url) return;
+      window.open(url, "_blank");
+    });
+
+    isrcFinderBtn.addEventListener("click", async () => {
+      if (!lastIsrcCompact) return;
+      try {
+        await navigator.clipboard.writeText(lastIsrcCompact);
+        metaStatusEl.textContent =
+          "ISRC copied to clipboard. Opening ISRC Finder...";
+      } catch (err) {
+        console.error("Clipboard error", err);
+        metaStatusEl.textContent =
+          "Could not copy ISRC, but opening ISRC Finder.";
+      }
+      window.open("https://www.isrcfinder.com/reverse-lookup/", "_blank");
+    });
+
+    // Initial mode sync
+    updateModeUI();
   </script>
 </body>
 </html>
