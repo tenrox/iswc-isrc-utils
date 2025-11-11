@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ISWC / ISRC Formatter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 560px;
+      padding: 24px;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 18px;
+      padding: 24px 22px 22px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 4px;
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 18px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px 11px;
+      font-size: 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      outline: none;
+    }
+
+    input[type="text"]::placeholder {
+      color: #6b7280;
+    }
+
+    input[type="text"]:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: linear-gradient(135deg, #0ea5e9, #22c55e);
+      color: #0b1120;
+      white-space: nowrap;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .hint {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .results {
+      margin-top: 12px;
+      border-top: 1px solid rgba(148, 163, 184, 0.4);
+      padding-top: 10px;
+    }
+
+    .result-section {
+      margin-bottom: 10px;
+    }
+
+    .result-label {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .result-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .result-row span.value {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+        Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 13px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      font-size: 11px;
+      padding: 4px 8px;
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      cursor: pointer;
+    }
+
+    .copy-btn:active {
+      transform: translateY(1px);
+    }
+
+    .error {
+      font-size: 12px;
+      color: #f97373;
+      margin-top: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      margin-bottom: 8px;
+      color: #9ca3af;
+    }
+
+    .badge span.dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 18px 14px 16px;
+      }
+
+      .input-row {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <h1>ISWC / ISRC formatter</h1>
+      <div class="subtitle">
+        Paste any ISWC or ISRC. The tool will normalize and reformat it.
+      </div>
+
+      <div class="badge">
+        <span class="dot"></span>
+        <span>ISWC: T + 10 digits · ISRC: 2 letters + 10 chars</span>
+      </div>
+
+      <div class="hint">
+        Example: <strong>T9121280997</strong>,
+        <strong>T-923.502.140-6</strong>,
+        <strong>SE-69Z-25-02263</strong>
+      </div>
+
+      <div class="input-row">
+        <input
+          id="codeInput"
+          type="text"
+          placeholder="Paste ISWC or ISRC here..."
+        />
+        <button id="convertBtn" type="button">Convert</button>
+      </div>
+
+      <div id="error" class="error" style="display:none;"></div>
+
+      <div id="results" class="results" style="display:none;">
+        <div id="iswcSection" class="result-section" style="display:none;">
+          <div class="result-label">ISWC</div>
+
+          <div class="result-row">
+            <span class="value" id="iswcCompact"></span>
+            <button class="copy-btn" data-target="iswcCompact">Copy</button>
+          </div>
+          <div class="result-row">
+            <span class="value" id="iswcFormatted"></span>
+            <button class="copy-btn" data-target="iswcFormatted">Copy</button>
+          </div>
+        </div>
+
+        <div id="isrcSection" class="result-section" style="display:none;">
+          <div class="result-label">ISRC</div>
+
+          <div class="result-row">
+            <span class="value" id="isrcCompact"></span>
+            <button class="copy-btn" data-target="isrcCompact">Copy</button>
+          </div>
+          <div class="result-row">
+            <span class="value" id="isrcFormatted"></span>
+            <button class="copy-btn" data-target="isrcFormatted">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const inputEl = document.getElementById("codeInput");
+    const convertBtn = document.getElementById("convertBtn");
+    const errorEl = document.getElementById("error");
+    const resultsEl = document.getElementById("results");
+
+    const iswcSection = document.getElementById("iswcSection");
+    const isrcSection = document.getElementById("isrcSection");
+
+    const iswcCompactEl = document.getElementById("iswcCompact");
+    const iswcFormattedEl = document.getElementById("iswcFormatted");
+    const isrcCompactEl = document.getElementById("isrcCompact");
+    const isrcFormattedEl = document.getElementById("isrcFormatted");
+
+    function clearResults() {
+      resultsEl.style.display = "none";
+      iswcSection.style.display = "none";
+      isrcSection.style.display = "none";
+      errorEl.style.display = "none";
+      iswcCompactEl.textContent = "";
+      iswcFormattedEl.textContent = "";
+      isrcCompactEl.textContent = "";
+      isrcFormattedEl.textContent = "";
+    }
+
+    function formatISWC(raw) {
+      // Remove everything except letters and digits, uppercase
+      const cleaned = raw.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      if (!/^T\d{10}$/.test(cleaned)) {
+        return null; // basic syntax check only
+      }
+
+      const prefix = "T";
+      const digits = cleaned.slice(1); // 10 digits
+      const work = digits.slice(0, 9);
+      const checkDigit = digits.slice(9);
+
+      const part1 = work.slice(0, 3);
+      const part2 = work.slice(3, 6);
+      const part3 = work.slice(6, 9);
+
+      const compact = prefix + digits; // T##########
+      const formatted = `${prefix}-${part1}.${part2}.${part3}-${checkDigit}`;
+
+      return { compact, formatted };
+    }
+
+    function formatISRC(raw) {
+      const cleaned = raw.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      // 12 chars: CCXXXYYNNNNN
+      if (!/^[A-Z]{2}[A-Z0-9]{3}\d{2}\d{5}$/.test(cleaned)) {
+        return null;
+      }
+
+      const cc = cleaned.slice(0, 2);
+      const registrant = cleaned.slice(2, 5);
+      const year = cleaned.slice(5, 7);
+      const designation = cleaned.slice(7); // 5 digits
+
+      const compact = cleaned;
+      const formatted = `${cc}-${registrant}-${year}-${designation}`;
+      return { compact, formatted };
+    }
+
+    function convert() {
+      clearResults();
+
+      const raw = inputEl.value.trim();
+      if (!raw) {
+        errorEl.textContent = "Please paste an ISWC or ISRC.";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      const firstChar = raw.trim().charAt(0).toUpperCase();
+
+      let iswc = null;
+      let isrc = null;
+
+      // Heuristic:
+      // - Starts with T => treat as ISWC
+      // - Else if starts with two letters => ISRC
+      // - Else try both and see if one fits
+      if (firstChar === "T") {
+        iswc = formatISWC(raw);
+      } else if (/^[A-Za-z]{2}/.test(raw.trim())) {
+        isrc = formatISRC(raw);
+      } else {
+        iswc = formatISWC(raw);
+        if (!iswc) {
+          isrc = formatISRC(raw);
+        }
+      }
+
+      if (!iswc && !isrc) {
+        errorEl.textContent =
+          "Unrecognized or invalid code. Expected an ISWC (T + 10 digits) or an ISRC (2 letters + 10 characters).";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      resultsEl.style.display = "block";
+
+      if (iswc) {
+        iswcSection.style.display = "block";
+        iswcCompactEl.textContent = iswc.compact;
+        iswcFormattedEl.textContent = iswc.formatted;
+      }
+
+      if (isrc) {
+        isrcSection.style.display = "block";
+        isrcCompactEl.textContent = isrc.compact;
+        isrcFormattedEl.textContent = isrc.formatted;
+      }
+    }
+
+    convertBtn.addEventListener("click", convert);
+
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        convert();
+      }
+    });
+
+    document.addEventListener("click", async (e) => {
+      const btn = e.target.closest(".copy-btn");
+      if (!btn) return;
+
+      const targetId = btn.getAttribute("data-target");
+      const valueEl = document.getElementById(targetId);
+      const text = valueEl ? valueEl.textContent : "";
+
+      if (!text) return;
+
+      try {
+        await navigator.clipboard.writeText(text);
+        const original = btn.textContent;
+        btn.textContent = "Copied!";
+        setTimeout(() => {
+          btn.textContent = original;
+        }, 900);
+      } catch (err) {
+        console.error("Clipboard error", err);
+      }
+    });
+  </script>
+</body>
+</html>
